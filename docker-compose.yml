@@ -1,0 +1,30 @@
+version: '3.8'
+
+services:
+  mosquitto:
+    image: eclipse-mosquitto:latest
+    container_name: broker_mqtt
+    ports:
+      - "1883:1883"
+    volumes:
+      - ./config/mosquitto.conf:/mosquitto/config/mosquitto.conf
+    restart: always
+
+  clasificador:
+    build:
+      context: .
+      dockerfile: docker/app.Dockerfile
+    container_name: app_clasificadora
+    devices:
+      - "/dev/video0:/dev/video0"
+    privileged: true
+    depends_on:
+      - mosquitto
+    restart: always
+
+  nodered:
+    image: nodered/node-red:latest
+    container_name: dashboard_iot
+    ports:
+      - "1880:1880"
+    restart: always
